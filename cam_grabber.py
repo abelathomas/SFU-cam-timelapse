@@ -1,5 +1,6 @@
 import requests
 import time
+from os import path, mkdir
 
 # The Camera names/location and fixed image links are below
 UDN = "http://ns-webcams.its.sfu.ca/public/images/udn-current.jpg?nocache=1&update=15000&timeout=1800000&offset=4"
@@ -20,9 +21,18 @@ print("-- Initilising " + active_name + " Cam Grabber --")
 counter = 0
 
 while True:
+
+    # Checking if the folder path exists
+    folder_path = "./" + active_name + "/"
+    if (not(path.exists(folder_path))):
+        mkdir(folder_path)
+
+    # Grabbing the images from SFU website
     print("Grabbing " + active_name + " Image# " + str(counter))
     img = requests.get(active_cam)
-    down_img = open("./" + active_name + "/" + str(counter) + ".jpeg", "wb")
+
+    # Dowloading images locally
+    down_img = open(folder_path + str(counter) + ".jpeg", "wb")
     down_img.write(img.content)
     down_img.close()
     counter += 1
