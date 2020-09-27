@@ -1,7 +1,8 @@
 import requests
-import time
 import keyboard
-from os import path, mkdir
+from time import sleep
+from datetime import datetime
+from os import path, mkdir, startfile
 
 # The Camera names/location and fixed image links
 UDN = "http://ns-webcams.its.sfu.ca/public/images/udn-current.jpg?nocache=1&update=15000&timeout=1800000&offset=4"
@@ -14,8 +15,8 @@ TRN = "http://ns-webcams.its.sfu.ca/public/images/towern-current.jpg?nocache=1&u
 
 
 # Camera to grab the images from
-active_cam = UDN
-active_name = "UDN"
+active_cam = TFF
+active_name = "TFF"
 
 # Initialising grabber
 print("----- Initilising " + active_name + " Cam Grabber -----")
@@ -28,14 +29,25 @@ while grabber_status:
     # Checking if the folder path exists
     folder_path = "./" + active_name + "/"
     if (not(path.exists(folder_path))):
+        # temp_path = "./" + active_name + "/0.jpeg"
+        # if (not(path.exists(temp_path))):
         mkdir(folder_path)
 
     # Grabbing the images from SFU website
     print("Grabbing " + active_name + " Image# " + str(counter))
     temp_img = requests.get(active_cam)
 
+    while True:
+        if (not(temp_img.content)):
+            print("----- Requested " + active_name + " SFU cam is down -----")
+            sleep(5)
+            temp_img = requests.get(active_cam)
+        else:
+            break
+
     # Dowloading images locally
-    img = open(folder_path + str(counter) + ".jpeg", "wb")
+    cur_time = datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+    img = open(folder_path + cur_time + ".jpeg", "wb")
     img.write(temp_img.content)
     img.close()
     counter += 1
@@ -53,4 +65,9 @@ while grabber_status:
             break
 
         time_last_grab += 0.1
-        time.sleep(0.1)
+        sleep(0.1)
+
+
+# print("----- Initilising Vid Stitcher -----")
+# startfile("vid_stitch.bat")
+# print("----- Timeplase Vid Completed -----")
